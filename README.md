@@ -1,1 +1,0 @@
-# movie-exif-writer

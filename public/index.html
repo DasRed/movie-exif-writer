@@ -1,0 +1,94 @@
+<html lang="de">
+<head>
+    <title>Movie Exif</title>
+    <link rel="stylesheet" href="./index.css" />
+    <link rel="stylesheet" href="./@fortawesome/fontawesome-free/css/all.css" />
+</head>
+<body>
+    <h1>
+        Queue
+    </h1>
+    <ul>
+        <li>Waiting: <span id="waiting"></span></li>
+        <li>Requesting: <span id="requesting"></span></li>
+        <li>Requested: <span id="requested"></span></li>
+        <li>Request in: <span id="requestIn"></span></li>
+    </ul>
+
+    <hr>
+
+    <div id="form">
+        <label for="path">Scan path: </label><input type="text" id="path" value="/Volumes/Media/Movies/2004"/>
+        <button id="button" type="button">Scan</button>
+    </div>
+
+    <hr>
+
+    <table>
+        <thead>
+        <tr>
+            <th>Status</th>
+            <th>Titles</th>
+            <th>Year?</th>
+            <th>Suggestion</th>
+        </tr>
+        </thead>
+        <tbody id="list"></tbody>
+    </table>
+
+    <script type="text/html" id="templateLine">
+        <tr id="m-${id}" class="<% if (status === 'error') { %>red<% } else if (status === 'success' && movies.length === 0) { %>orange<% } %>">
+            <td><i class="fas <%
+                if (status === 'waiting') { %>fa-pause-circle blue<% }
+                else if (status === 'requesting') { %>fa-spinner fa-spin orange<% }
+                else if (status === 'success') { %>fa-check-circle green<% }
+                else if (status === 'error') { %>fa-exclamation-circle red<% }
+                else {%>fa-question-circle<% } %>"></i></td>
+            <td>
+                File: ${path}/${name}<br />
+                Possible Title: ${possibleTitle}<br />
+                Meta Title: ${metaTitle}<br />
+            </td>
+            <td>
+                Possible Year: ${possibleYear}
+                Meta Year: ${metaYear}
+            </td>
+            <td>
+                <% if (status === 'error') { %>
+                    ${message}
+                <% } else if (status === 'success') { %>
+                    <ul>
+                        <li><input type="radio" data-index=""> ignore</li>
+                        <% movies.forEach(function (movie, index) { %>
+                            <li>
+                                <input type="radio" data-index="${index}" <% if (index === 0) {%>checked="checked"<% } %>> ${movie.year} : ${movie.title}
+                            </li>
+                        <% }) %>
+                    </ul>
+                <% } %>
+            </td>
+        </tr>
+    </script>
+
+    <script type="module">
+        import Client from '/index.mjs';
+        import $ from './jquery.mjs';
+
+        new Client({
+            url:      'ws://localhost:3000',
+            element:  {
+                list:       $('#list'),
+                waiting:    $('#waiting'),
+                requesting: $('#requesting'),
+                requested:  $('#requested'),
+                requestIn:  $('#requestIn'),
+                input:      $('#path'),
+                button:     $('#button'),
+            },
+            template: {
+                line: document.getElementById('templateLine').innerHTML,
+            }
+        });
+    </script>
+</body>
+</html>

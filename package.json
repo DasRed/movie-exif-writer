@@ -1,0 +1,41 @@
+{
+    "name": "movie-exif-writer",
+    "main": "src/test.js",
+    "private": true,
+    "scripts": {
+        "start": "nodemon src/index.js"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^5.8.2",
+        "dotenv": "^8.0.0",
+        "ffmpeg-static": "^2.4.0",
+        "jquery": "^3.4.1",
+        "koa": "^2.7.0",
+        "koa-static": "^5.0.0",
+        "koa-websocket": "^5.0.1",
+        "lodash": "^4.17.11",
+        "md5": "^2.2.1",
+        "moment": "^2.24.0",
+        "node-fetch": "^2.5.0",
+        "winston": "^3.2.1"
+    },
+    "devDependencies": {
+        "nodemon": "^1.19.0"
+    },
+    "nodemonConfig": {
+        "verbose": true,
+        "ignore": [
+            ".git",
+            "node_modules/**/node_modules",
+            "*test.js",
+            "fixtures/*"
+        ],
+        "watch": [
+            "./src/"
+        ],
+        "env": {
+            "NODE_ENV": "development"
+        },
+        "ext": "js"
+    }
+}
