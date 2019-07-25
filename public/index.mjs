@@ -76,7 +76,7 @@ class Client {
      */
     renderLine(file) {
         const elementPrevious = $('#m-' + file.id);
-        const html            = lodash.template(this.template.line)(file);
+        const html            = lodash.template(this.template.line)({file});
 
         if (elementPrevious.length !== 0) {
             elementPrevious.before(html);

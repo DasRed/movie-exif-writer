@@ -39,14 +39,14 @@ table tr td:first-child, table tr th:first-child {
 }
 
 table tr td:nth-child(2), table tr th:nth-child(2) {
-    width: 60%;
+    width: 40%;
     text-align: left;
     text-overflow: ellipsis;
 }
 
 table tr td:nth-child(3), table tr th:nth-child(3) {
-    width: 50px;
-    text-align: left;
+    width: 10%;
+    text-align: right;
 }
 
 table tr td:nth-child(4), table tr th:nth-child(4) {
@@ -75,4 +75,8 @@ tr.red {
 
 tr.orange {
     background-color: rgba(255, 152, 0, 0.50);
+}
+
+tr.grey {
+    color: #808080;
 }

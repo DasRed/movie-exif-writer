@@ -37,31 +37,54 @@
     </table>
 
     <script type="text/html" id="templateLine">
-        <tr id="m-${id}" class="<% if (status === 'error') { %>red<% } else if (status === 'success' && movies.length === 0) { %>orange<% } %>">
+        <tr id="m-${file.id}"
+            class="
+                <% if (file.status === 'error') { %>red<% }
+                else if (file.metaTitle && file.metaYear) { %>grey<% }
+                else if (file.status === 'success' && file.movies.length === 0) { %>orange<% } %>
+            "
+        >
             <td><i class="fas <%
-                if (status === 'waiting') { %>fa-pause-circle blue<% }
-                else if (status === 'requesting') { %>fa-spinner fa-spin orange<% }
-                else if (status === 'success') { %>fa-check-circle green<% }
-                else if (status === 'error') { %>fa-exclamation-circle red<% }
+                if (file.status === 'waiting') { %>fa-pause-circle blue<% }
+                else if (file.status === 'requesting') { %>fa-spinner fa-spin orange<% }
+                else if (file.status === 'success') { %>fa-check-circle green<% }
+                else if (file.status === 'error') { %>fa-exclamation-circle red<% }
                 else {%>fa-question-circle<% } %>"></i></td>
             <td>
-                File: ${path}/${name}<br />
-                Possible Title: ${possibleTitle}<br />
-                Meta Title: ${metaTitle}<br />
+                File: ${file.path}/${file.name}<br />
+                Possible Title: ${file.possibleTitle}<br />
+                Meta Title: ${file.metaTitle}<br />
             </td>
             <td>
-                Possible Year: ${possibleYear}
-                Meta Year: ${metaYear}
+                Possible Year: ${file.possibleYear}<br />
+                Meta Year: ${file.metaYear}
             </td>
             <td>
-                <% if (status === 'error') { %>
-                    ${message}
-                <% } else if (status === 'success') { %>
+                <% if (file.status === 'error') { %>
+                    ${file.message}
+                <% } else if (file.status === 'success') { %>
                     <ul>
-                        <li><input type="radio" data-index=""> ignore</li>
-                        <% movies.forEach(function (movie, index) { %>
+                        <li>
+                            <input
+                                    type="radio"
+                                    name="m-${file.id}"
+                                    value="-1"
+                                    data-year=""
+                                    data-title=""
+                                    <% if (file.metaTitle && file.metaYear) {%>checked="checked"<% } %>
+                            > ignore
+                        </li>
+                        <% file.movies.forEach(function (movie, index) { %>
                             <li>
-                                <input type="radio" data-index="${index}" <% if (index === 0) {%>checked="checked"<% } %>> ${movie.year} : ${movie.title}
+                                <input
+                                        type="radio"
+                                        data-index="${index}"
+                                        name="m-${file.id}"
+                                        value="${movie.year} : ${movie.title}"
+                                        data-year="${movie.year}"
+                                        data-title="${movie.title}"
+                                        <% if (!(file.metaTitle && file.metaYear) && index === 0) {%>checked="checked"<% } %>
+                                > ${movie.year} : ${movie.title}
                             </li>
                         <% }) %>
                     </ul>

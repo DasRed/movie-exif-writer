@@ -8,8 +8,8 @@ class TMDB extends DBServiceAbstract {
      */
     createParameters() {
         return {
-            query: this.file.possibleTitle,
-            //year: this.file.possibleYear,
+            query: this.file.metaTitle || this.file.possibleTitle,
+            //year: this.file.metaYear || this.file.possibleYear,
         };
     }
 

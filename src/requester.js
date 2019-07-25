@@ -2,17 +2,22 @@ const EventEmitter = require('events');
 const path         = require('path');
 const md5          = require('md5');
 const winston      = require('winston');
+const moment       = require('moment');
 const factory      = require('./dbService/factory');
+const Metadata     = require('./metadata');
 
 /**
  * @typedef {Object} RequesterFile
  * @property {string} id
+ * @property {string} pathFull
  * @property {string} root
  * @property {string} path
  * @property {string} name
  * @property {string} ext
  * @property {string} possibleTitle
  * @property {string|undefined} possibleYear
+ * @property {string|undefined} metaTitle
+ * @property {string|undefined} metaYear
  */
 
 /**
@@ -30,17 +35,18 @@ const factory      = require('./dbService/factory');
  */
 function createFile({root, dir, file: fileName}) {
     const file = {
-        id:   md5(dir.substr(root.length + 1) + fileName),
+        id:       md5(dir.substr(root.length + 1) + fileName),
+        pathFull: path.join(dir, fileName),
         root,
-        path: dir.substr(root.length + 1),
-        name: path.basename(fileName, path.extname(fileName)),
-        ext:  path.extname(fileName).substr(1),
+        path:     dir.substr(root.length + 1),
+        name:     path.basename(fileName, path.extname(fileName)),
+        ext:      path.extname(fileName).substr(1),
 
         possibleTitle: path.basename(fileName, path.extname(fileName)),
         possibleYear:  undefined,
 
         metaTitle: undefined,
-        metaYear: undefined,
+        metaYear:  undefined,
     };
 
     // find matching year
@@ -76,6 +82,7 @@ function createFile({root, dir, file: fileName}) {
 /**
  * @fires Requester#created
  * @fires Requester#start
+ * @fires Requester#metadata
  * @fires Requester#success
  * @fires Requester#error
  * @fires Requester#complete
@@ -125,6 +132,17 @@ class Requester extends EventEmitter {
         winston.debug('start request for ' + this.file.name);
 
         try {
+            const metadata      = await Metadata.read(this.file.pathFull);
+            this.file.metaTitle = metadata.title || undefined;
+            this.file.metaYear  = metadata.date ? moment(metadata.date).year() : undefined;
+
+            /**
+             * @event Requester#metadata
+             * @param {RequesterFile} file
+             * @param {Object} data
+             */
+            this.emit('metadata', this.file, metadata);
+
             const data = await this.dbService.fetch();
             this.data  = data.sort((entryA, entryB) => {
                 if (entryA.title !== entryB.title && entryA.title === this.file.possibleTitle) {

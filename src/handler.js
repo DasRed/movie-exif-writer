@@ -33,6 +33,55 @@ class Handler {
 
     /**
      *
+     * @param {string} root
+     * @param {string} dir
+     * @param {string} file
+     * @return {Handler}
+     */
+    handleFile(root, dir, file) {
+        const requester = new Requester({
+            root,
+            dir,
+            file,
+            on: {
+                created:  (file) => this.send({
+                    type:   'file',
+                    status: 'waiting',
+                    ...file,
+                }),
+                start:    (file) => this.send({
+                    type:   'file',
+                    status: 'requesting',
+                    ...file,
+                }),
+                metadata: (file, data) => this.send({
+                    type:     'file',
+                    status:   'requesting',
+                    ...file,
+                    metadata: data,
+                }),
+                success:  (file, data) => this.send({
+                    type:   'file',
+                    status: 'success',
+                    ...file,
+                    movies: data
+                }),
+                error:    (file, error) => this.send({
+                    type:    'file',
+                    status:  'error',
+                    message: error.message || error,
+                    ...file,
+                }),
+            }
+        });
+
+        this.queue.add(requester);
+
+        return this;
+    }
+
+    /**
+     *
      * @return {this}
      */
     onClose() {
@@ -119,40 +168,10 @@ class Handler {
             const stats    = await fsp.stat(pathFull);
 
             if (stats.isDirectory() === true) {
-                await this.scan(pathFull, root);
+                this.scan(pathFull, root);
             }
             else if (file.includes('._') === false) {
-                const requester = new Requester({
-                    root,
-                    dir,
-                    file,
-                    on:   {
-                        created:  (file) => this.send({
-                            type:   'file',
-                            status: 'waiting',
-                            ...file,
-                        }),
-                        start:    (file) => this.send({
-                            type:   'file',
-                            status: 'requesting',
-                            ...file,
-                        }),
-                        success:  (file, data) => this.send({
-                            type:   'file',
-                            status: 'success',
-                            ...file,
-                            movies: data
-                        }),
-                        error:    (file, error) => this.send({
-                            type:    'file',
-                            status:  'error',
-                            message: error.message || error,
-                            ...file,
-                        }),
-                    }
-                });
-
-                this.queue.add(requester);
+                this.handleFile(root, dir, file);
             }
         });
 
